@@ -77,7 +77,7 @@ class Player(FirstPersonController):
 
     def input(self, key):
         super().input(key)
-        
+
         if key =='scroll up':
             Block.current += 1
             if Block.current >=len(block_textures):
@@ -102,5 +102,16 @@ class Player(FirstPersonController):
 
 
 
+    def update(self):
+        super().update()
+        if held_keys['control']:
+            self.speed = 10
+        else:
+            self.speed = 5
 
+        if held_keys["shift"]:
+            self.speed = 3
+            self.height = 1
+        else:
+            self.height = 2
 
