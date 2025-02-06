@@ -32,6 +32,21 @@ class Tree(Entity):
         )
 
 
+class Flower(Button):
+    def __init__(self, pos, **kwargs):
+        super().__init__(
+            parent=scene,
+            model='assets/flower/scene.gltf',
+            position=pos,
+            scale=1,
+            collider='box',
+            origin_y=-0.3,
+            color=color.color(0,0, random.uniform(0.9, 1)),
+            shader=basic_lighting_shader,
+            **kwargs
+        )
+
+
 class Block(Entity):
     current = 0
     def __init__(self, block_type, pos, **kwargs):
@@ -66,14 +81,22 @@ class Map(Entity):
                 if rand_num ==40:
                     Tree((x,y+1,z))
 
+                rand_num=random.randint(1,50)
+                if rand_num ==20:
+                    Flower((x,y+1,z))
+                    
 
 class Player(FirstPersonController):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.speed = 20
         self.jump_height = 3
+        self.bg_sound =  Audio(sound_file_name='assets/sound/leaves01.ogg',volume=1)
         self.hand_block = Entity(parent = camera.ui, model='cube', texture=block_textures[Block.current],scale =0.2, position=(0.6, -0.42),
                                  shader=basic_lighting_shader, rotation = Vec3(30,-30,10))
+        self.build_sounds = Audio(sound_file_name='assets/sound/stone01.ogg', autoplay=False, volume=10000)
+        self.destroy_sounds = Audio(sound_file_name='assets/sound/gravel.ogg', autoplay=False, volume=10000)
+        
 
     def input(self, key):
         super().input(key)
@@ -94,7 +117,9 @@ class Player(FirstPersonController):
 
         if key == "left mouse down" and mouse.hovered_entity:
             destroy(mouse.hovered_entity)
+            self.destroy_sounds.play()
         if key == "right mouse down" and mouse.hovered_entity:
+            self.build_sounds.play()
             hit_info = raycast(camera.world_position, camera.forward,distance = 15 )
             if hit_info.hit:
                 Block(Block.current, hit_info.entity.position + hit_info.normal)
